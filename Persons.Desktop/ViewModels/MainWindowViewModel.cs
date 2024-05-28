@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Persons.Desktop.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel : ViewModelBase, IClosingRequest
     {
         #region Services
         private IPersonsProvider personsProvider;
@@ -37,20 +37,45 @@ namespace Persons.Desktop.ViewModels
         #region .ctor
         public MainWindowViewModel()
         {
-            var isValidObservable = this.WhenAnyValue<MainWindowViewModel,bool,PersonEditViewModel>(
+            var isPersonSelected = this.WhenAnyValue<MainWindowViewModel, bool, PersonEditViewModel>(
                 x => x.Selected,
                 x => x != null);
 
-            EditCommand = ReactiveCommand.CreateFromTask<object?, Unit>(EditCommandExecuted, isValidObservable);
+            EditCommand = ReactiveCommand.CreateFromTask<object?, Unit>(EditCommandExecuted, isPersonSelected);
+            DeleteCommand = ReactiveCommand.CreateFromTask<object?, Unit>(DeleteCommandExecuted, isPersonSelected);
+            AddCommand = ReactiveCommand.CreateFromTask<object?, Unit>(AddCommandExecuted);
+
             PersonEditDialog = new Interaction<PersonEditViewModel, PersonEditViewModel?>();
 
             personsProvider = new FilePersonsProvider() { Filename = "persons.json" };
-            Persons = new ObservableCollection<PersonEditViewModel>(personsProvider.Load().Select(x=>new PersonEditViewModel(x)));
+            var p = personsProvider.Load();
+            Persons = p != null ?
+                new ObservableCollection<PersonEditViewModel>(p.Select(x => new PersonEditViewModel(x))) :
+                Persons = new ObservableCollection<PersonEditViewModel>();
         }
         #endregion
 
         #region Commands
         public ReactiveCommand<object?, Unit> EditCommand { get; set; }
+        public ReactiveCommand<object?, Unit> DeleteCommand { get; set; }
+        public ReactiveCommand<object?, Unit> AddCommand { get; set; }
+
+        private async Task<Unit> DeleteCommandExecuted(object? p)
+        {
+            Persons.Remove(Selected);
+            return Unit.Default;
+        }
+
+        private async Task<Unit> AddCommandExecuted(object? p)
+        {
+            var person = new PersonEditViewModel(new Person());
+            var result = await PersonEditDialog.Handle(person);
+            if (result != null)
+            {
+                Persons.Add(person);
+            }
+            return Unit.Default;
+        }
         private async Task<Unit> EditCommandExecuted(object? p)
         {
             var person = new PersonEditViewModel(Selected!.Person);
@@ -63,6 +88,12 @@ namespace Persons.Desktop.ViewModels
                 selected.Person.City = result.City;
             }
             return Unit.Default;
+        }
+
+        public bool Closing()
+        {
+            personsProvider.Save(Persons.Select(x => x.Person));
+            return true;
         }
         #endregion
 

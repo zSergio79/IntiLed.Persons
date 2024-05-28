@@ -20,13 +20,13 @@
   <Grid RowDefinitions="Auto,*">
     <Border BorderBrush="Gray" BorderThickness="0 1 0 1" Margin="10 4" Padding="2">
       <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
-        <Button Content="Add"/>
-        <Button Content="Delete"/>
+        <Button Content="Add" Command="{Binding AddCommand}"/>
+        <Button Content="Delete" Command="{Binding DeleteCommand}"/>
         <Button Content="Edit" Command="{Binding EditCommand}"/>
       </StackPanel>
     </Border>
     <DataGrid Grid.Row="1" ItemsSource="{Binding Persons}" SelectedItem="{Binding Selected}" IsReadOnly="True" behaviors:DoubleTappedBehavior.Command="{Binding EditCommand}"
-              BorderBrush="Gray" BorderThickness="1" Margin="10 4">
+              BorderBrush="Gray" BorderThickness="0 1" Margin="10 4">
       <DataGrid.Columns>
         <DataGridTextColumn Header="Имя" Width="*" Binding="{Binding Name}"/>
         <DataGridTextColumn Header="Фамилия" Width="*" Binding="{Binding Surname}"/>

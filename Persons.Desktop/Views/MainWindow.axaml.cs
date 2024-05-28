@@ -17,6 +17,13 @@ namespace Persons.Desktop.Views
         public MainWindow()
         {
             InitializeComponent();
+
+            this.Closing += (o, e) =>
+            {
+                if (DataContext is IClosingRequest vm)
+                    vm.Closing();
+            };
+
             this.WhenActivated(action => action(ViewModel!.PersonEditDialog.RegisterHandler(DoShowDialogAsync)));
         }
         private async Task DoShowDialogAsync(InteractionContext<PersonEditViewModel, PersonEditViewModel?> interaction)

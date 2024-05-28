@@ -2,7 +2,7 @@
 
 namespace Persons.Desktop.ViewModels
 {
-    public class ViewModelBase : ReactiveObject
+    public class ViewModelBase : ReactiveValidation.ValidatableObject//ReactiveObject
     {
     }
 }

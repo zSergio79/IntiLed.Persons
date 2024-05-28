@@ -11,11 +11,28 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="Persons.Desktop">
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
+  <Design.DataContext>
+    <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
+    <vm:MainWindowViewModel/>
+  </Design.DataContext>
 
-  <DataGrid ItemsSource="{Binding Persons}" SelectedItem="{Binding Selected}" AutoGenerateColumns="True" IsReadOnly="True" behaviors:DoubleTappedBehavior.Command="{Binding EditCommand}"/>
+  <Grid RowDefinitions="Auto,*">
+    <Border BorderBrush="Gray" BorderThickness="0 1 0 1" Margin="10 4" Padding="2">
+      <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+        <Button Content="Add"/>
+        <Button Content="Delete"/>
+        <Button Content="Edit" Command="{Binding EditCommand}"/>
+      </StackPanel>
+    </Border>
+    <DataGrid Grid.Row="1" ItemsSource="{Binding Persons}" SelectedItem="{Binding Selected}" IsReadOnly="True" behaviors:DoubleTappedBehavior.Command="{Binding EditCommand}"
+              BorderBrush="Gray" BorderThickness="1" Margin="10 4">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Имя" Width="*" Binding="{Binding Name}"/>
+        <DataGridTextColumn Header="Фамилия" Width="*" Binding="{Binding Surname}"/>
+        <DataGridTextColumn Header="Возраст" Width="*" Binding="{Binding Age}"/>
+        <DataGridTextColumn Header="Город проживания" Width="*" Binding="{Binding City}"/>
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
 </Window>

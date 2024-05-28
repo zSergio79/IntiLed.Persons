@@ -24,20 +24,24 @@ namespace Persons.Desktop.ViewModels
         public ObservableCollection<PersonEditViewModel> Persons
         {
             get => persons;
-            set => this.RaiseAndSetIfChanged(ref persons, value);
+            set => this.SetAndRaiseIfChanged(ref persons, value);
         }
         private PersonEditViewModel? selected;
         public PersonEditViewModel? Selected
         {
             get => selected;
-            set => this.RaiseAndSetIfChanged(ref selected, value);
+            set => this.SetAndRaiseIfChanged(ref selected, value);
         }
         #endregion
 
         #region .ctor
         public MainWindowViewModel()
         {
-            EditCommand = ReactiveCommand.CreateFromTask<object?, Unit>(EditCommandExecuted);
+            var isValidObservable = this.WhenAnyValue<MainWindowViewModel,bool,PersonEditViewModel>(
+                x => x.Selected,
+                x => x != null);
+
+            EditCommand = ReactiveCommand.CreateFromTask<object?, Unit>(EditCommandExecuted, isValidObservable);
             PersonEditDialog = new Interaction<PersonEditViewModel, PersonEditViewModel?>();
 
             personsProvider = new FilePersonsProvider() { Filename = "persons.json" };
@@ -49,14 +53,14 @@ namespace Persons.Desktop.ViewModels
         public ReactiveCommand<object?, Unit> EditCommand { get; set; }
         private async Task<Unit> EditCommandExecuted(object? p)
         {
-            var person = new PersonEditViewModel(selected);
+            var person = new PersonEditViewModel(Selected!.Person);
             var result = await PersonEditDialog.Handle(person);
             if (result != null)
             {
-                selected.Age = result.Age;
-                selected.Name = result.Name;
-                selected.Surname = result.Surname;
-                selected.City = result.City;
+                selected.Person.Age = result.Age;
+                selected.Person.Name = result.Name;
+                selected.Person.Surname = result.Surname;
+                selected.Person.City = result.City;
             }
             return Unit.Default;
         }

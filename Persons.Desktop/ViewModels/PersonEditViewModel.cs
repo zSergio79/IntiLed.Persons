@@ -1,15 +1,12 @@
 ﻿using IntiLed.Persons.Core;
 
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
 using ReactiveUI;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using ReactiveValidation;
+using ReactiveValidation.Extensions;
+
 using System.Reactive;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Persons.Desktop.ViewModels
 {
@@ -25,6 +22,23 @@ namespace Persons.Desktop.ViewModels
         public Person Person { get { return person; } }
         #endregion
 
+        #region Validation
+        private IObjectValidator GetValidator()
+        {
+            var builder = new ValidationBuilder<PersonEditViewModel>();
+
+            builder.RuleFor(vm => vm.Name).Must(x => !x.Contains(" ")).WithMessage("Имя не может содержать пробелы.")
+                .NotEmpty().WithMessage("Имя не может быть пустым.");
+
+            builder.RuleFor(vm => vm.Surname).Must(x => !x.Contains(" ")).WithMessage("Фамилия не может содержать пробелы.")
+                .NotEmpty().WithMessage("Фамилия не может быть пустой.");
+
+            builder.RuleFor(vm => vm.Age).GreaterThan(0).LessThan(101).WithMessage("Возраст должен быть в диапазоне от 0 до 100.");
+
+            return builder.Build(this);
+        }
+        #endregion
+
         #region Bindable Properties
         private string name = string.Empty;
         private string surname = string.Empty;
@@ -33,42 +47,26 @@ namespace Persons.Desktop.ViewModels
         public string Name
         {
             get => name;
-            set => this.RaiseAndSetIfChanged(ref  this.name, value);
+            set => this.SetAndRaiseIfChanged(ref this.name, value);
         }
         public string Surname
         {
             get => surname;
-            set => this.RaiseAndSetIfChanged(ref this.surname, value);
+            set => this.SetAndRaiseIfChanged(ref this.surname, value);
         }
         public int Age
         {
             get => age;
-            set => this.RaiseAndSetIfChanged(ref this.age, value);
+            set => this.SetAndRaiseIfChanged(ref this.age, value);
         }
         public string City
         {
             get => city;
-            set => this.RaiseAndSetIfChanged(ref this.city, value);
+            set => this.SetAndRaiseIfChanged(ref this.city, value);
         }
         #endregion
 
         #region .ctor
-        public PersonEditViewModel(PersonEditViewModel person)
-        {
-
-            this.Name = person.Name;
-            this.Age = person.Age;
-            this.City = person.City;
-            this.Surname = person.Surname;
-
-            //this.person = person;
-
-            OkCommand = ReactiveCommand.Create<Unit, PersonEditViewModel>((_) => 
-            {
-                return this; 
-            });
-            CancelCommand = ReactiveCommand.Create<Unit, PersonEditViewModel?>((_) => null);
-        }
         public PersonEditViewModel(Person person)
         {
 
@@ -76,13 +74,13 @@ namespace Persons.Desktop.ViewModels
             this.Age = person.Age;
             this.City = person.City;
             this.Surname = person.Surname;
+            this.person = person;
+
+            Validator = GetValidator();         
 
             //this.person = person;
 
-            OkCommand = ReactiveCommand.Create<Unit, PersonEditViewModel>((_) =>
-            {
-                return this;
-            });
+            OkCommand = ReactiveCommand.Create<Unit, PersonEditViewModel>((_) => this);
             CancelCommand = ReactiveCommand.Create<Unit, PersonEditViewModel?>((_) => null);
         }
         #endregion

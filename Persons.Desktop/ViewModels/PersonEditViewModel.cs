@@ -40,48 +40,86 @@ namespace Persons.Desktop.ViewModels
         #endregion
 
         #region Bindable Properties
-        private string name = string.Empty;
-        private string surname = string.Empty;
-        private int age;
-        private string city = string.Empty;
         public string Name
         {
-            get => name;
-            set => this.SetAndRaiseIfChanged(ref this.name, value);
+            get => Person?.Name;
+            set
+            {
+                if (Person != null)
+                {
+                    if (Person.Name != value)
+                    {
+                        Person.Name = value;
+                        OnPropertyChanged();
+                    }
+                }
+
+            }
+                //this.SetAndRaiseIfChanged(ref this.name, value);
         }
         public string Surname
         {
-            get => surname;
-            set => this.SetAndRaiseIfChanged(ref this.surname, value);
+            get => Person?.Surname;
+            set
+            {
+                if (Person != null)
+                {
+                    if (Person.Surname != value)
+                    {
+                        Person.Surname = value;
+                        OnPropertyChanged();
+                    }
+                }
+            }
+
         }
-        public int Age
+        public int? Age
         {
-            get => age;
-            set => this.SetAndRaiseIfChanged(ref this.age, value);
+            get => Person.Age;
+            set 
+            {
+                if (Person != null)
+                {
+                    if(Person.Age != value)
+                    {
+                        Person.Age = value ?? 0;
+                        OnPropertyChanged();
+                    }
+                }
+            }
         }
         public string City
         {
-            get => city;
-            set => this.SetAndRaiseIfChanged(ref this.city, value);
+            get => Person?.City;
+            set 
+            {
+                if (Person != null)
+                {
+                    if(Person.City != value)
+                    {
+                        Person.City = value;
+                        OnPropertyChanged();
+                    }
+                }
+            }
         }
         #endregion
 
         #region .ctor
         public PersonEditViewModel(Person person)
         {
-
-            this.Name = person.Name;
-            this.Age = person.Age;
-            this.City = person.City;
-            this.Surname = person.Surname;
             this.person = person;
 
-            Validator = GetValidator();         
+            Validator = GetValidator();
+
+            var isOkEnabled = this.WhenAnyValue<PersonEditViewModel, bool>(
+                x => x.Validator.IsValid);
 
             //this.person = person;
 
-            OkCommand = ReactiveCommand.Create<Unit, PersonEditViewModel>((_) => this);
+            OkCommand = ReactiveCommand.Create<Unit, PersonEditViewModel>((_) => this, isOkEnabled);
             CancelCommand = ReactiveCommand.Create<Unit, PersonEditViewModel?>((_) => null);
+            
         }
         #endregion
     }

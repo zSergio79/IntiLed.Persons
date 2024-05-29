@@ -37,7 +37,7 @@ namespace Persons.Desktop.ViewModels
         #region .ctor
         public MainWindowViewModel()
         {
-            var isPersonSelected = this.WhenAnyValue<MainWindowViewModel, bool, PersonEditViewModel>(
+            var isPersonSelected = this.WhenAnyValue<MainWindowViewModel, bool, PersonEditViewModel?>(
                 x => x.Selected,
                 x => x != null);
 
@@ -78,14 +78,14 @@ namespace Persons.Desktop.ViewModels
         }
         private async Task<Unit> EditCommandExecuted(object? p)
         {
-            var person = new PersonEditViewModel(Selected!.Person);
+            var person = new PersonEditViewModel(new Person() { Age = Selected.Age ?? 0 , City = Selected.City, Name = Selected.Name, Surname = Selected.Surname});
             var result = await PersonEditDialog.Handle(person);
             if (result != null)
             {
-                selected.Person.Age = result.Age;
-                selected.Person.Name = result.Name;
-                selected.Person.Surname = result.Surname;
-                selected.Person.City = result.City;
+                selected.Age = result.Age;
+                selected.Name = result.Name;
+                selected.Surname = result.Surname;
+                selected.City = result.City;
             }
             return Unit.Default;
         }

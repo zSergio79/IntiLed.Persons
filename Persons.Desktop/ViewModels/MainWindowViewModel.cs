@@ -1,4 +1,5 @@
-﻿using Avalonia.Xaml.Interactivity;
+﻿using Avalonia;
+using Avalonia.Xaml.Interactivity;
 
 using IntiLed.Persons.Core;
 using IntiLed.Persons.Core.Interfaces;
@@ -11,12 +12,14 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Persons.Desktop.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase, IClosingRequest
     {
         #region Services
-        private IPersonsProvider personsProvider;
+        private IPersonsProvider? personsProvider;
         #endregion
 
         #region Bindable Properties
@@ -47,8 +50,8 @@ namespace Persons.Desktop.ViewModels
 
             PersonEditDialog = new Interaction<PersonEditViewModel, PersonEditViewModel?>();
 
-            personsProvider = new FilePersonsProvider() { Filename = "persons.json" };
-            var p = personsProvider.Load();
+            personsProvider = ((App)App.Current).ServiceProvider?.GetService<IPersonsProvider>();// new FilePersonsProvider() { Filename = "persons.json" };
+            var p = personsProvider?.Load();
             Persons = p != null ?
                 new ObservableCollection<PersonEditViewModel>(p.Select(x => new PersonEditViewModel(x))) :
                 Persons = new ObservableCollection<PersonEditViewModel>();
@@ -92,7 +95,7 @@ namespace Persons.Desktop.ViewModels
 
         public bool Closing()
         {
-            personsProvider.Save(Persons.Select(x => x.Person));
+            personsProvider?.Save(Persons.Select(x => x.Person));
             return true;
         }
         #endregion

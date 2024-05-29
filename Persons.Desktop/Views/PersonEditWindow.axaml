@@ -11,7 +11,7 @@
         WindowStartupLocation="CenterOwner" CanResize="False">
   <Border Margin="10" Padding="5" BorderBrush="Gray" BorderThickness="1">
     <Grid RowDefinitions="*,Auto">
-      <Grid RowDefinitions="Auto,Auto,Auto,Auto, Auto" ColumnDefinitions="Auto,*">
+      <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*">
         <Grid.Styles>
           <Style Selector="TextBlock">
             <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -28,7 +28,6 @@
         <TextBlock Grid.Column="0" Grid.Row="1" Text="Surname"/>
         <TextBlock Grid.Column="0" Grid.Row="2" Text="Age"/>
         <TextBlock Grid.Column="0" Grid.Row="3" Text="City"/>
-        <TextBlock Grid.Column="0" Grid.Row="4" Text="{Binding Validator.IsValid}"/>
       </Grid>
       <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
         <Button Content="Ok" IsDefault="True" Command="{Binding OkCommand}"/>
